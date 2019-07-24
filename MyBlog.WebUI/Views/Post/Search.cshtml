@@ -1,0 +1,35 @@
+﻿@using P.Pager.Mvc.Core
+@using P.Pager
+@model IPager<Post>
+@{
+    ViewData["Title"] = "Search";
+}
+@foreach (var item in Model)
+{
+    <div class="card  text-dark mt-3 text-center">
+        <div class="card-body">
+            <h5 class="card-title">@item.Title</h5>
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("UserPost","Post",new {username = item.User.UserName})" class="">
+                    <h6 class="card-subtitle mb-2 text-muted">@item.User.Name @item.User.LastName</h6>
+                </a>
+                <h6 class="card-subtitle mb-2 text-muted"><a href="@Url.Action("UserPost","Post",new { categoryName = item.Category.Name })">@item.Category.Name</a>  @item.PublishDate.ToShortDateString()</h6>
+            </div>
+
+            <p id="summary-post-@item.Id" class="card-text">
+                @item.Summary
+            </p>
+            <a href="@Url.Action("Details","Post",new {slug = item.Slug})" class="btn btn-outline-dark">Go somewhere</a>
+        </div>
+    </div>
+}
+@if (ViewBag.isSearchPosts)
+{
+    @Html.Pager((IPager)Model, page => Url.Action("UserPost", new { page }), new PagerOptions { TextToPreviousPage = "Previous Page", TextToNextPage = "Next Page", TextToFirstPage = "First Page", TextToLastPage = "Last Page", ClassToPagerContainer = "d-flex justify-content-center" })
+
+}
+else
+{
+    @Html.Pager((IPager)Model, page => Url.Action("Index", new { page }), new PagerOptions { TextToPreviousPage = "Previous Page", TextToNextPage = "Next Page", TextToFirstPage = "First Page", TextToLastPage = "Last Page", ClassToPagerContainer = "d-flex justify-content-center" })
+
+}

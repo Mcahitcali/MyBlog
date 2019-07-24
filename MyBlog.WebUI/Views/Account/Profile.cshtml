@@ -1,0 +1,83 @@
+﻿@using P.Pager.Mvc.Core
+@using P.Pager
+@model IPager<Post>
+@{
+    ViewData["Title"] = "Profile";
+    
+}
+<div class="table-responsive mt-3">
+    <table id="postTable" class="table">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Content</th>
+                <th scope="col">Category</th>
+                <th scope="col">Publish Date</th>
+                <th scope="col" colspan="2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.Title</td>
+                    <td>
+                        @if (item.Content.Length > 100)
+                        {
+                            @Html.Raw(item.Content.Substring(0, 100).Replace("<div>", String.Empty))
+                        }
+                        else
+                        {
+                            @Html.Raw(item.Content.Replace("<div>", String.Empty))
+                        }
+                    </td>
+                    <td>@item.Category.Name</td>
+                    <td>@item.PublishDate</td>
+                    <td><a href="@Url.Action("Edit","Post",new {username = item.User.UserName, slug = item.Slug })" class="btn btn-outline-primary text-primary">Edit</a></td>
+                    <td><button onclick="DeleteItem(@item.Id, '@item.Title.ToString()')" id="deleteBtn" class="btn btn-outline-danger d-none d-md-inline-block" data-id="@item.Id">Delete</button></td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    function DeleteItem(id, title) {
+        var thisBtn = event.target;
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("Delete","Post")",
+            data: { id: id },
+            success: function () {
+                DeleteAlert($(thisBtn), title, "success");
+            },
+            error: function () {
+                DeleteAlert($(thisBtn), title, "error");
+                alert("Error!");
+            }
+        });
+    }
+
+    function DeleteAlert(element, title, state) {
+        Swal.fire({
+            type: state,
+            title: 'Deleted Post!',
+            html: 'Deleted ' + title,
+            timer: 1500,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+            onClose: () => {
+            }
+        }).then((result) => {
+            if (
+                result.dismiss === Swal.DismissReason.timer
+            ) {
+                element.parents('tr').remove();
+                console.log('I was closed by the timer')
+            }
+        })
+    }
+</script>
